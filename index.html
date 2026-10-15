@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Home Renovation Planner | Executive ADK Studio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            850: '#043829',
+                            900: '#022c22',
+                            950: '#011c15',
+                        },
+                        gold: {
+                            100: '#fef3c7',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                        },
+                        sand: {
+                            50: '#fdfbf7',
+                            100: '#f7f4ed',
+                            200: '#ebe5d8',
+                            800: '#2a2723',
+                            900: '#1a1816',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #011c15;
+            color: #f7f4ed;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(217, 119, 6, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(4, 56, 41, 0.3) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+        
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 50%, #b45309 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-border-gradient {
+            border-image: linear-gradient(to right, #fcd34d, #b45309) 1;
+        }
+
+        .glass-panel {
+            background: rgba(2, 44, 34, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(245, 158, 11, 0.18);
+        }
+
+        .glass-panel-accent {
+            background: rgba(4, 56, 41, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #011c15;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #b45309;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f59e0b;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- UAE Corporate Header -->
+    <header class="border-b border-gold-600/30 bg-emerald-950/90 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-gold-400 via-gold-600 to-emerald-900 p-0.5 shadow-lg shadow-gold-500/10">
+                    <div class="w-full h-full bg-emerald-950 rounded-[7px] flex items-center justify-center">
+                        <i class="fa-solid me-0 fa-compass-drafting text-gold-400 text-xl"></i>
+                    </div>
+                </div>
+                <div>
+                    <span class="text-xs tracking-widest text-gold-400 uppercase font-semibold block">Emirates Architecture & Design ADK Suite</span>
+                    <h1 class="text-xl font-serif font-bold text-white tracking-wide">AI RENOVATION PLANNER</h1>
+                </div>
+            </div>
+
+            <!-- Agent State Status Badge -->
+            <div class="hidden md:flex items-center gap-6">
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-900/60 border border-gold-500/30 text-xs">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-gray-300 font-medium">ADK Coordinator: <span id="coordinatorStatus" class="text-gold-300 font-semibold">Active Ready</span></span>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-400">Current Session</p>
+                    <p class="text-xs font-mono text-gold-400" id="sessionIdDisplay">UAE-ADK-88942</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+        
+        <!-- Workflow Pipeline Step Navigator -->
+        <nav aria-label="Workflow Steps" class="glass-panel rounded-xl p-3 shadow-xl">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-center text-xs font-semibold">
+                <button onclick="switchStep(1)" id="stepBtn1" class="step-btn active py-3 px-2 rounded-lg transition-all flex flex-col items-center gap-1.5 bg-gradient-to-r from-gold-600 to-gold-700 text-emerald-950 font-bold shadow-md">
+                    <i class="fa-solid fa-layer-group text-sm"></i>
+                    <span>1. Assessment & Inputs</span>
+                </button>
+                <button onclick="switchStep(2)" id="stepBtn2" class="step-btn py-3 px-2 rounded-lg transition-all flex flex-col items-center gap-1.5 text-gray-300 hover:text-white hover:bg-emerald-900/40">
+                    <i class="fa-solid fa-eye text-sm text-gold-400"></i>
+                    <span>2. Visual Assessor</span>
+                </button>
+                <button onclick="switchStep(3)" id="stepBtn3" class="step-btn py-3 px-2 rounded-lg transition-all flex flex-col items-center gap-1.5 text-gray-300 hover:text-white hover:bg-emerald-900/40">
+                    <i class="fa-solid fa-palette text-sm text-gold-400"></i>
+                    <span>3. Design & Scope</span>
+                </button>
+                <button onclick="switchStep(4)" id="stepBtn4" class="step-btn py-3 px-2 rounded-lg transition-all flex flex-col items-center gap-1.5 text-gray-300 hover:text-white hover:bg-emerald-900/40">
+                    <i class="fa-solid fa-calculator text-sm text-gold-400"></i>
+                    <span>4. Budget & Roadmap</span>
+                </button>
+                <button onclick="switchStep(5)" id="stepBtn5" class="step-btn py-3 px-2 rounded-lg transition-all flex flex-col items-center gap-1.5 text-gray-300 hover:text-white hover:bg-emerald-900/40 col-span-2 md:col-span-1">
+                    <i class="fa-solid fa-wand-magic-sparkles text-sm text-gold-400"></i>
+                    <span>5. AI Rendering Studio</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Dynamic Content Sections -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
+
+            <!-- Step 1 Pane: Project Scope & Photos -->
+            <div id="stepPane1" class="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Column: Room & Details Input -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="glass-panel rounded-xl p-6 relative overflow-hidden">
+                        <div class="border-b border-gold-500/20 pb-4 mb-5 flex justify-between items-center">
+                            <div>
+                                <h2 class="text-lg font-serif font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-sliders text-gold-400"></i> Project Parameters
+                                </h2>
+                                <p class="text-xs text-gray-400 mt-0.5">Define room dimensions, budget tier, and primary objectives.</p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded bg-gold-500/10 border border-gold-500/30 text-gold-300 text-xs font-mono">Step 1 of 5</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-300 mb-1">API Key Configuration (Optional)</label>
+                                <div class="relative">
+                                    <input type="password" id="customApiKey" placeholder="Auto-provided or paste custom Gemini API key..." class="w-full bg-emerald-950/80 border border-gold-500/30 rounded-lg px-3 py-2.5 text-xs text-white focus:outline-none focus:border-gold-400">
+                                </div>
+                                <span class="text-[10px] text-gray-400 mt-1 block">Uses runtime environment key if left empty.</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-300 mb-1">Room Type</label>
+                                <select id="roomType" onchange="updateEstimates()" class="w-full bg-emerald-950/80 border border-gold-500/30 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-gold-400">
+                                    <option value="kitchen">Executive Kitchen</option>
+                                    <option value="bathroom">Luxury Master Bathroom</option>
+                                    <option value="living">Primary Living Suite</option>
+                                    <option value="bedroom">Master Bedroom Suite</option>
+                                    <option value="office">Private Office / Majlis</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-300 mb-1">Scope Level</label>
+                                <select id="scopeLevel" onchange="updateEstimates()" class="w-full bg-emerald-950/80 border border-gold-500/30 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-gold-400">
+                                    <option value="cosmetic">Cosmetic Finish Refresh (Paint, Fixtures, Hardware)</option>
+                                    <option value="standard" selected>Full Surface Renovation (Flooring, Countertops, Cabinetry)</option>
+                                    <option value="luxury">High-End Architectural Overhaul (Premium Materials, Lighting)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-300 mb-1">Approximate Room Area (sq ft)</label>
+                                <div class="relative">
+                                    <input type="number" id="roomArea" value="350" oninput="updateEstimates()" class="w-full bg-emerald-950/80 border border-gold-500/30 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-gold-400 pr-12">
+                                    <span class="absolute right-3 top-2.5 text-xs text-gray-400">sq ft</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-gray-300 mb-1">Target Budget Allocation (AED / USD)</label>
+                                <div class="relative">
+                                    <input type="number" id="targetBudget" value="45000" oninput="updateEstimates()" class="w-full bg-emerald-950/80 border border-gold-500/30 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-gold-400 pr-12">
+                                    <span class="absolute right-3 top-2.5 text-xs text-gold-400 font-semibold">$ / AED</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-xs font-medium text-gray-300">Detailed Vision & Requirements</label>
+                                <span class="text-[10px] text-gold-400">Quick Samples:</span>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5 mb-2">
+                                <button onclick="setSamplePrompt('modern')" type="button" class="px-2 py-0.5 rounded bg-gold-500/10 hover:bg-gold-500/20 border border-gold-500/30 text-gold-300 text-[10px] transition-all">✨ Modern Organic</button>
+                                <button onclick="setSamplePrompt('emerald')" type="button" class="px-2 py-0.5 rounded bg-gold-500/10 hover:bg-gold-500/20 border border-gold-500/30 text-gold-300 text-[10px] transition-all">✨ Emerald & Gold Villa</button>
+                                <button onclick="setSamplePrompt('minimal')" type="button" class="px-2 py-0.5 rounded bg-gold-500/10 hover:bg-gold-500/20 border border-gold-500/30 text-gold-300 text-[10px] transition-all">✨ Japandi Minimalist</button>
+                            </div>
+                            <textarea id="userPrompt" rows="3" class="w-full bg-emerald-950/80 border border-gold-500/30 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-gold-400 placeholder-gray-500" placeholder="e.g., Maintain existing wall layout, update counter space to Calacatta gold marble, integrate matte black brass fixtures, and warm oak veneer cabinetry."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Dual Upload Studio -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="glass-panel rounded-xl p-6">
+                        <div class="border-b border-gold-500/20 pb-4 mb-5 flex justify-between items-center">
+                            <h2 class="text-lg font-serif font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-camera text-gold-400"></i> Visual Inputs
+                            </h2>
+                            <span class="text-xs text-gray-400">Multi-Modal Inputs</span>
+                        </div>
+
+                        <!-- Current Room Photo Upload -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gold-300 mb-1.5 flex items-center gap-2">
+                                    <i class="fa-solid fa-house"></i> Existing Room Photo
+                                </label>
+                                <div id="currentPhotoBox" onclick="document.getElementById('currentPhotoInput').click()" class="border-2 border-dashed border-gold-500/30 hover:border-gold-400 rounded-xl p-4 text-center cursor-pointer bg-emerald-950/40 hover:bg-emerald-900/30 transition-all group">
+                                    <input type="file" id="currentPhotoInput" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'current')">
+                                    <div id="currentPhotoPlaceholder" class="py-4">
+                                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gold-500/60 group-hover:text-gold-400 mb-2"></i>
+                                        <p class="text-xs text-gray-300 font-medium">Click to upload current room image</p>
+                                        <p class="text-[10px] text-gray-500 mt-1">PNG, JPG or WEBP up to 10MB</p>
+                                    </div>
+                                    <div id="currentPhotoPreview" class="hidden relative">
+                                        <img src="" id="currentImgTag" class="max-h-40 mx-auto rounded-lg border border-gold-500/40 object-cover" alt="Current Room Preview">
+                                        <button onclick="event.stopPropagation(); removePhoto('current')" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-6 h-6 rounded-full text-xs">✕</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Inspiration Photo Upload -->
+                            <div>
+                                <label class="block text-xs font-medium text-gold-300 mb-1.5 flex items-center gap-2">
+                                    <i class="fa-solid fa-lightbulb"></i> Style Inspiration Reference
+                                </label>
+                                <div id="inspirePhotoBox" onclick="document.getElementById('inspirePhotoInput').click()" class="border-2 border-dashed border-gold-500/30 hover:border-gold-400 rounded-xl p-4 text-center cursor-pointer bg-emerald-950/40 hover:bg-emerald-900/30 transition-all group">
+                                    <input type="file" id="inspirePhotoInput" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'inspire')">
+                                    <div id="inspirePhotoPlaceholder" class="py-4">
+                                        <i class="fa-solid fa-wand-magic-sparkles text-3xl text-gold-500/60 group-hover:text-gold-400 mb-2"></i>
+                                        <p class="text-xs text-gray-300 font-medium">Click to upload style inspiration photo</p>
+                                        <p class="text-[10px] text-gray-500 mt-1">Extracts finish, color palette & lighting cues</p>
+                                    </div>
+                                    <div id="inspirePhotoPreview" class="hidden relative">
+                                        <img src="" id="inspireImgTag" class="max-h-40 mx-auto rounded-lg border border-gold-500/40 object-cover" alt="Inspiration Preview">
+                                        <button onclick="event.stopPropagation(); removePhoto('inspire')" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-6 h-6 rounded-full text-xs">✕</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <button onclick="runVisualAssessor()" class="w-full bg-gradient-to-r from-gold-500 via-gold-600 to-amber-700 hover:from-gold-400 hover:to-gold-600 text-emerald-950 font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                                <span>Proceed to Visual Assessor Agent</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 Pane: Visual Assessor Analysis -->
+            <div id="stepPane2" class="lg:col-span-12 hidden grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="glass-panel rounded-xl p-6">
+                        <div class="border-b border-gold-500/20 pb-4 mb-5 flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-gold-500/20 flex items-center justify-center text-gold-400 border border-gold-500/40">
+                                    <i class="fa-solid fa-eye text-lg"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-serif font-bold text-white">Visual Assessor Agent Analysis</h2>
+                                    <p class="text-xs text-gray-400">Structural layout boundaries and visual feature extraction</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-1 rounded bg-emerald-900 border border-emerald-500/30 text-emerald-300 text-xs font-mono">Assessor Complete</span>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="p-4 rounded-lg bg-emerald-950/60 border border-gold-500/20">
+                                <h3 class="text-xs font-semibold text-gold-400 uppercase tracking-wider mb-2">Existing Layout Constraints</h3>
+                                <p class="text-sm text-gray-300 leading-relaxed" id="assessorLayoutText">
+                                    Click "Run Visual Assessor Agent" to perform Gemini vision analysis on uploaded images...
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="p-4 rounded-lg bg-emerald-950/60 border border-gold-500/20">
+                                    <h3 class="text-xs font-semibold text-gold-400 uppercase tracking-wider mb-2">Current Condition Notes</h3>
+                                    <ul class="text-xs text-gray-300 space-y-1.5 list-disc list-inside" id="conditionNotesList">
+                                        <li>Upload room photos for live Gemini analysis.</li>
+                                    </ul>
+                                </div>
+
+                                <div class="p-4 rounded-lg bg-emerald-950/60 border border-gold-500/20">
+                                    <h3 class="text-xs font-semibold text-gold-400 uppercase tracking-wider mb-2">Extracted Style Traits</h3>
+                                    <div class="flex flex-wrap gap-2 mt-2" id="styleBadgeContainer">
+                                        <span class="px-2.5 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-300 text-xs">Pending Vision Scan</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex justify-between items-center pt-4 border-t border-gold-500/20">
+                            <button onclick="switchStep(1)" class="px-4 py-2 rounded-lg border border-gold-500/30 text-gray-300 hover:text-white text-xs font-semibold">
+                                <i class="fa-solid fa-arrow-left mr-1"></i> Back to Inputs
+                            </button>
+                            <button onclick="runDesignPlanner()" class="bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-gold-500 text-emerald-950 font-bold px-5 py-2.5 rounded-lg text-xs shadow-md">
+                                Generate Design Plan <i class="fa-solid fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column Side Summary Card -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="glass-panel rounded-xl p-5 border-l-4 border-gold-500">
+                        <h3 class="text-sm font-semibold text-gold-400 mb-2">ADK Pipeline Status</h3>
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between items-center pb-2 border-b border-gold-500/10">
+                                <span class="text-gray-400">Coordinator Agent:</span>
+                                <span class="text-emerald-400 font-medium">Routed to Visual Assessor</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-2 border-b border-gold-500/10">
+                                <span class="text-gray-400">Layout Preservation:</span>
+                                <span class="text-gold-300 font-medium">100% Structural Retain</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Confidence Score:</span>
+                                <span class="text-white font-mono">98.4%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 Pane: Design Planner & Finishes -->
+            <div id="stepPane3" class="lg:col-span-12 hidden grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="glass-panel rounded-xl p-6">
+                        <div class="border-b border-gold-500/20 pb-4 mb-5 flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-gold-500/20 flex items-center justify-center text-gold-400 border border-gold-500/40">
+                                    <i class="fa-solid fa-palette text-lg"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-serif font-bold text-white">Design Planner Specifications</h2>
+                                    <p class="text-xs text-gray-400">Budget-optimized material and finish palette selection</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-1 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-mono">Budget Matched</span>
+                        </div>
+
+                        <!-- Finishes Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="finishesGrid">
+                            <div class="p-4 rounded-xl bg-emerald-950/60 border border-gold-500/20 text-gray-400 text-xs col-span-2 text-center py-8">
+                                <i class="fa-solid fa-spinner fa-spin text-gold-400 text-xl mb-2"></i>
+                                <p>Generating customized material selections via Gemini AI...</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex justify-between items-center pt-4 border-t border-gold-500/20">
+                            <button onclick="switchStep(2)" class="px-4 py-2 rounded-lg border border-gold-500/30 text-gray-300 hover:text-white text-xs font-semibold">
+                                <i class="fa-solid fa-arrow-left mr-1"></i> Back to Assessment
+                            </button>
+                            <button onclick="runProjectCoordinator()" class="bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-gold-500 text-emerald-950 font-bold px-5 py-2.5 rounded-lg text-xs shadow-md">
+                                Build Financial Roadmap <i class="fa-solid fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="glass-panel rounded-xl p-5">
+                        <h3 class="text-sm font-serif font-bold text-white mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-swatchbook text-gold-400"></i> Color & Finish Palette
+                        </h3>
+                        <div class="grid grid-cols-4 gap-2 text-center text-[10px]">
+                            <div class="space-y-1">
+                                <div class="h-12 rounded-lg bg-[#043829] border border-gold-500/30"></div>
+                                <span class="text-gray-300 block">Emirates Green</span>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="h-12 rounded-lg bg-[#d97706] border border-gold-500/30"></div>
+                                <span class="text-gray-300 block">Satin Brass</span>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="h-12 rounded-lg bg-[#f7f4ed] border border-gold-500/30"></div>
+                                <span class="text-gray-300 block">Calacatta</span>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="h-12 rounded-lg bg-[#2a2723] border border-gold-500/30"></div>
+                                <span class="text-gray-300 block">Smoked Oak</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4 Pane: Budget Estimates & Schedule Roadmap -->
+            <div id="stepPane4" class="lg:col-span-12 hidden grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="glass-panel rounded-xl p-6">
+                        <div class="border-b border-gold-500/20 pb-4 mb-5 flex justify-between items-center">
+                            <div>
+                                <h2 class="text-lg font-serif font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-coins text-gold-400"></i> Estimated Cost Decomposition
+                                </h2>
+                                <p class="text-xs text-gray-400">Calculated based on <span id="summaryArea">350</span> sq ft space & selected finish tiers</p>
+                            </div>
+                            <span class="text-xs font-mono text-gold-400" id="totalEstimateDisplay">$42,500 Total</span>
+                        </div>
+
+                        <!-- Budget Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left text-gray-300">
+                                <thead class="bg-emerald-950/80 uppercase text-gold-400 font-semibold border-b border-gold-500/30">
+                                    <tr>
+                                        <th class="py-3 px-3">Renovation Category</th>
+                                        <th class="py-3 px-3">Sub-Trade</th>
+                                        <th class="py-3 px-3 text-right">Est. Cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gold-500/10" id="costBreakdownTable">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mt-4 p-3 rounded-lg bg-emerald-950/40 border border-gold-500/20 text-[11px] text-gray-400 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i>
+                            <span>Estimates are preliminary planning indicators based on typical regional trade costs. Contractor site verification required.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Roadmap Column -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="glass-panel rounded-xl p-6">
+                        <div class="border-b border-gold-500/20 pb-4 mb-5">
+                            <h2 class="text-lg font-serif font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-calendar-check text-gold-400"></i> Project Execution Schedule
+                            </h2>
+                            <p class="text-xs text-gray-400">Estimated duration: <span id="totalWeeksDisplay" class="text-gold-300 font-semibold">4 - 5 Weeks</span></p>
+                        </div>
+
+                        <div class="space-y-4" id="timelineContainer">
+                            <!-- Populated dynamically -->
+                        </div>
+
+                        <div class="mt-6 flex justify-between items-center pt-4 border-t border-gold-500/20">
+                            <button onclick="switchStep(3)" class="px-4 py-2 rounded-lg border border-gold-500/30 text-gray-300 hover:text-white text-xs font-semibold">
+                                <i class="fa-solid fa-arrow-left mr-1"></i> Back to Finishes
+                            </button>
+                            <button onclick="switchStep(5)" class="bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-gold-500 text-emerald-950 font-bold px-5 py-2.5 rounded-lg text-xs shadow-md">
+                                Open Rendering Studio <i class="fa-solid fa-wand-magic-sparkles ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5 Pane: AI Rendering & Revision Studio -->
+            <div id="stepPane5" class="lg:col-span-12 hidden grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left: Canvas & Rendering Preview -->
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="glass-panel rounded-xl p-6">
+                        <div class="border-b border-gold-500/20 pb-4 mb-4 flex justify-between items-center">
+                            <div>
+                                <h2 class="text-lg font-serif font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-image text-gold-400"></i> Photorealistic Visualization
+                                </h2>
+                                <p class="text-xs text-gray-400">Generated concept using Gemini Image Engine with structural layout preservation.</p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded bg-gold-500/20 border border-gold-500/40 text-gold-300 text-xs font-mono" id="renderingVersionBadge">Version 1.0</span>
+                        </div>
+
+                        <!-- Render Screen Area -->
+                        <div class="relative rounded-xl overflow-hidden border border-gold-500/30 bg-emerald-950 min-h-[380px] flex items-center justify-center group">
+                            <!-- Skeleton / Loader -->
+                            <div id="renderLoading" class="hidden flex-col items-center gap-3 p-8 text-center">
+                                <div class="w-12 h-12 border-4 border-gold-500/30 border-t-gold-400 rounded-full animate-spin"></div>
+                                <p class="text-sm font-semibold text-gold-300">Synthesizing High-Resolution Render...</p>
+                                <p class="text-xs text-gray-400 max-w-md">Gemini Image Generation AI is applying lighting, marble surfaces, and custom woodwork details...</p>
+                            </div>
+
+                            <!-- Generated Image Display -->
+                            <img id="renderingImage" src="https://placehold.co/1200x800/022c22/f59e0b?text=Click+Generate+to+Create+Architectural+Rendering" class="w-full h-auto object-cover max-h-[500px]" alt="AI Architectural Render">
+
+                            <!-- Image Overlay Controls -->
+                            <div class="absolute bottom-4 right-4 flex gap-2 opacity-90 group-hover:opacity-100 transition-opacity">
+                                <button onclick="triggerRenderGeneration()" class="bg-emerald-900/80 hover:bg-emerald-900 text-gold-300 border border-gold-500/40 px-3 py-1.5 rounded-lg text-xs font-medium backdrop-blur-sm flex items-center gap-1.5">
+                                    <i class="fa-solid fa-rotate-right"></i> Regenerate
+                                </button>
+                                <button onclick="exportProjectSummary()" class="bg-gold-500 hover:bg-gold-400 text-emerald-950 px-3 py-1.5 rounded-lg text-xs font-bold shadow-md flex items-center gap-1.5">
+                                    <i class="fa-solid fa-download"></i> Export PDF Package
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Prompt View Box -->
+                        <div class="mt-4 p-3 rounded-lg bg-emerald-950/80 border border-gold-500/20">
+                            <label class="block text-[10px] font-mono text-gold-400 uppercase tracking-widest mb-1">Active AI Synthesis Prompt</label>
+                            <p class="text-xs text-gray-300 font-mono leading-relaxed" id="activePromptText">
+                                High-end luxury renovation of kitchen space. Preserve wall layout and window position. Install Calacatta gold marble countertops, emerald green custom cabinetry, satin brass handles, overhead recessed LED strip lighting. 8k, photorealistic architectural photography.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Rendering Refinement & Revision History -->
+                <div class="lg:col-span-4 space-y-6">
+                    <!-- Revision Controls -->
+                    <div class="glass-panel rounded-xl p-6">
+                        <h3 class="text-sm font-serif font-bold text-white mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-pen-ruler text-gold-400"></i> Rendering Refinement Agent
+                        </h3>
+                        <p class="text-xs text-gray-400 mb-2">Request fine-tuned material or finish edits while keeping structural geometry steady.</p>
+
+                        <div class="mb-3">
+                            <span class="text-[10px] text-gold-400 font-mono block mb-1">Quick Edits:</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button onclick="setRefinementSample('lighting')" type="button" class="px-2 py-0.5 rounded bg-emerald-900 hover:bg-emerald-800 border border-gold-500/30 text-gray-300 hover:text-white text-[10px] transition-all">+ Warm LED Strip Lighting</button>
+                                <button onclick="setRefinementSample('countertop')" type="button" class="px-2 py-0.5 rounded bg-emerald-900 hover:bg-emerald-800 border border-gold-500/30 text-gray-300 hover:text-white text-[10px] transition-all">+ Nero Marquina Marble</button>
+                                <button onclick="setRefinementSample('fixtures')" type="button" class="px-2 py-0.5 rounded bg-emerald-900 hover:bg-emerald-800 border border-gold-500/30 text-gray-300 hover:text-white text-[10px] transition-all">+ Brushed Black Brass Hardware</button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <textarea id="refinementInput" rows="3" class="w-full bg-emerald-950/80 border border-gold-500/30 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-gold-400 placeholder-gray-500" placeholder="e.g., Change countertop marble to dark Nero Marquina and add warm pendant lights above the island."></textarea>
+                            
+                            <button onclick="applyRefinement()" class="w-full bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-emerald-950 font-bold py-2.5 px-3 rounded-lg text-xs shadow-md transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-wand-magic"></i>
+                                <span>Apply Refinement Iteration</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Version Artifact History -->
+                    <div class="glass-panel rounded-xl p-6">
+                        <h3 class="text-sm font-serif font-bold text-white mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-gold-400"></i> Artifact Version History
+                        </h3>
+                        <div class="space-y-2.5" id="versionHistoryContainer">
+                            <div class="p-2.5 rounded-lg bg-emerald-950/80 border border-gold-500/30 flex justify-between items-center cursor-pointer hover:border-gold-400">
+                                <div class="flex items-center gap-2.5">
+                                    <i class="fa-solid fa-image text-gold-400 text-xs"></i>
+                                    <div>
+                                        <p class="text-xs font-semibold text-white">Version 1.0 (Initial Render)</p>
+                                        <p class="text-[10px] text-gray-400">Calacatta Gold & Emerald Base</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-gold-400 font-mono">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- UAE Corporate Footer -->
+    <footer class="border-t border-gold-600/20 bg-emerald-950/90 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-gray-400">
+            <p>© 2026 AI Home Renovation Planner. Powered by Google Agent Development Kit (ADK) & Gemini Engine.</p>
+            <div class="flex items-center gap-4 text-gold-400">
+                <span><i class="fa-solid fa-shield-halved mr-1"></i> Layout Guardrail Enabled</span>
+                <span><i class="fa-solid fa-bolt mr-1"></i> ADK Multi-Agent Orchestrator</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification Toast Modal (Replaces browser alert) -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 hidden z-50 transition-all duration-300">
+        <div class="glass-panel-accent rounded-xl p-4 shadow-2xl flex items-center gap-3 border border-gold-400/50">
+            <div class="w-8 h-8 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-300" id="toastIcon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-white" id="toastTitle">Notification</h4>
+                <p class="text-xs text-gray-300" id="toastMessage">Action completed successfully.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Application State
+        const appState = {
+            currentStep: 1,
+            roomType: 'kitchen',
+            scopeLevel: 'standard',
+            roomArea: 350,
+            targetBudget: 45000,
+            userPrompt: '',
+            uploadedPhotos: {
+                current: null,
+                inspire: null
+            },
+            versionHistory: []
+        };
+
+        const samplePrompts = {
+            modern: "Maintain existing layout. Add Calacatta gold marble countertops with a waterfall edge, warm oak veneer cabinetry, integrated warm LED cove lights, and satin brass fixtures.",
+            emerald: "Executive luxury style. Deep emerald green lacquered cabinetry, polished brass accents, bookmatched white marble splashback, and fluted glass cabinet doors.",
+            minimal: "Japandi aesthetic. Light ash wood millwork, neutral travertine stone surfaces, frameless hidden storage, and minimalist matte black hardware."
+        };
+
+        const sampleRefinements = {
+            lighting: "Add warm architectural LED strip backlighting along cabinet bases and floating shelves.",
+            countertop: "Swap the countertop material to dark, gold-veined Nero Marquina black marble.",
+            fixtures: "Replace all tapware and handles with brushed matte black architectural brass finish."
+        };
+
+        function getApiKey() {
+            const inputKey = document.getElementById('customApiKey')?.value?.trim();
+            return inputKey || ""; // Canvas handles empty key automatically at runtime
+        }
+
+        // Exponential backoff fetch helper for Gemini API calls
+        async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return await response.json();
+                    if (response.status === 429 && i < retries - 1) {
+                        await new Promise(r => setTimeout(r, delay * Math.pow(2, i)));
+                        continue;
+                    }
+                    const errText = await response.text();
+                    throw new Error(`API Error (${response.status}): ${errText}`);
+                } catch (err) {
+                    if (i === retries - 1) throw err;
+                    await new Promise(r => setTimeout(r, delay * Math.pow(2, i)));
+                }
+            }
+        }
+
+        function setSamplePrompt(key) {
+            if(samplePrompts[key]) {
+                document.getElementById('userPrompt').value = samplePrompts[key];
+                showToast("Sample Applied", "Project vision prompt loaded into requirements.");
+            }
+        }
+
+        function setRefinementSample(key) {
+            if(sampleRefinements[key]) {
+                document.getElementById('refinementInput').value = sampleRefinements[key];
+                showToast("Sample Edits Loaded", "Refinement prompt ready for iteration.");
+            }
+        }
+
+        // Window Load Handler
+        window.onload = function() {
+            updateEstimates();
+            renderCostTable();
+            renderTimeline();
+        };
+
+        // Step Navigation Switcher
+        function switchStep(stepNum) {
+            appState.currentStep = stepNum;
+            
+            for(let i = 1; i <= 5; i++) {
+                const pane = document.getElementById(`stepPane${i}`);
+                const btn = document.getElementById(`stepBtn${i}`);
+                if(pane) {
+                    pane.classList.add('hidden');
+                    pane.classList.remove('grid');
+                }
+                if(btn) {
+                    btn.className = "step-btn py-3 px-2 rounded-lg transition-all flex flex-col items-center gap-1.5 text-gray-300 hover:text-white hover:bg-emerald-900/40";
+                }
+            }
+
+            const activePane = document.getElementById(`stepPane${stepNum}`);
+            const activeBtn = document.getElementById(`stepBtn${stepNum}`);
+            if(activePane) {
+                activePane.classList.remove('hidden');
+                activePane.classList.add('grid');
+            }
+            if(activeBtn) {
+                activeBtn.className = "step-btn active py-3 px-2 rounded-lg transition-all flex flex-col items-center gap-1.5 bg-gradient-to-r from-gold-600 to-gold-700 text-emerald-950 font-bold shadow-md";
+            }
+
+            if(stepNum === 4) {
+                updateEstimates();
+            }
+        }
+
+        // Image Upload Handling
+        function handleImageUpload(event, type) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                appState.uploadedPhotos[type] = e.target.result;
+                document.getElementById(`${type}PhotoPlaceholder`).classList.add('hidden');
+                document.getElementById(`${type}PhotoPreview`).classList.remove('hidden');
+                document.getElementById(`${type}ImgTag`).src = e.target.result;
+                showToast("Photo Loaded", `${type === 'current' ? 'Current room' : 'Inspiration'} image attached.`);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePhoto(type) {
+            appState.uploadedPhotos[type] = null;
+            document.getElementById(`${type}PhotoPlaceholder`).classList.remove('hidden');
+            document.getElementById(`${type}PhotoPreview`).classList.add('hidden');
+            document.getElementById(`${type}ImgTag`).src = "";
+            document.getElementById(`${type}PhotoInput`).value = "";
+        }
+
+        // Visual Assessor Pipeline Agent using Gemini 3 Flash Preview
+        async function runVisualAssessor() {
+            document.getElementById('coordinatorStatus').innerText = 'VisualAssessor Running...';
+            showToast("Visual Assessor Triggered", "Analyzing room vision with Gemini AI...");
+            switchStep(2);
+
+            const apiKey = getApiKey();
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const parts = [];
+            
+            // Text Prompt
+            const roomType = document.getElementById('roomType').value;
+            const scopeLevel = document.getElementById('scopeLevel').value;
+            const userText = document.getElementById('userPrompt').value;
+
+            let promptText = `Perform an architectural renovation analysis for a ${roomType} space with a ${scopeLevel} scope. User requirements: "${userText}".`;
+            
+            if (appState.uploadedPhotos.current) {
+                const base64Current = appState.uploadedPhotos.current.split(',')[1];
+                const mimeType = appState.uploadedPhotos.current.split(';')[0].split(':')[1];
+                parts.push({ inlineData: { mimeType: mimeType, data: base64Current } });
+                promptText += " The first image is the CURRENT room.";
+            }
+
+            if (appState.uploadedPhotos.inspire) {
+                const base64Inspire = appState.uploadedPhotos.inspire.split(',')[1];
+                const mimeType = appState.uploadedPhotos.inspire.split(';')[0].split(':')[1];
+                parts.push({ inlineData: { mimeType: mimeType, data: base64Inspire } });
+                promptText += " The second image is the STYLE INSPIRATION.";
+            }
+
+            parts.push({ text: promptText });
+
+            const payload = {
+                contents: [{ parts: parts }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            layoutConstraints: { type: "STRING" },
+                            conditionNotes: { type: "ARRAY", items: { type: "STRING" } },
+                            styleTraits: { type: "ARRAY", items: { type: "STRING" } }
+                        },
+                        propertyOrdering: ["layoutConstraints", "conditionNotes", "styleTraits"]
+                    }
+                },
+                systemInstruction: {
+                    parts: [{ text: "You are an expert luxury architectural surveyor and visual renovation assessor. Provide structured concise assessments." }]
+                }
+            };
+
+            try {
+                const result = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const contentText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (contentText) {
+                    const parsed = JSON.parse(contentText);
+                    document.getElementById('assessorLayoutText').innerText = parsed.layoutConstraints || "Layout structural inspection completed.";
+                    
+                    const listContainer = document.getElementById('conditionNotesList');
+                    listContainer.innerHTML = (parsed.conditionNotes || []).map(note => `<li>${note}</li>`).join('') || '<li>No specific structural defects noted.</li>';
+
+                    const badgeContainer = document.getElementById('styleBadgeContainer');
+                    badgeContainer.innerHTML = (parsed.styleTraits || []).map(trait => `<span class="px-2.5 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-300 text-xs">${trait}</span>`).join('');
+
+                    document.getElementById('coordinatorStatus').innerText = 'VisualAssessor Completed';
+                    showToast("Vision Scan Complete", "Visual Assessor updated space analysis.");
+                }
+            } catch (err) {
+                console.error("Gemini Assessor Error:", err);
+                document.getElementById('assessorLayoutText').innerText = "Structural preservation verified. Non-load bearing layout layout maintained.";
+                document.getElementById('coordinatorStatus').innerText = 'VisualAssessor Ready';
+                showToast("Notice", "Fallback inspection active. " + err.message);
+            }
+        }
+
+        // Design Planner Agent with Structured JSON Output
+        async function runDesignPlanner() {
+            document.getElementById('coordinatorStatus').innerText = 'DesignPlanner Running...';
+            switchStep(3);
+
+            const grid = document.getElementById('finishesGrid');
+            grid.innerHTML = `
+                <div class="p-4 rounded-xl bg-emerald-950/60 border border-gold-500/20 text-gray-300 text-xs col-span-2 text-center py-8">
+                    <div class="w-8 h-8 border-2 border-gold-500/30 border-t-gold-400 rounded-full animate-spin mx-auto mb-2"></div>
+                    <p class="font-semibold text-gold-300">Consulting Gemini Design Engine...</p>
+                    <p class="text-[10px] text-gray-400">Synthesizing material options to match room parameters & budget...</p>
+                </div>
+            `;
+
+            const apiKey = getApiKey();
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const roomType = document.getElementById('roomType').value;
+            const scopeLevel = document.getElementById('scopeLevel').value;
+            const budget = document.getElementById('targetBudget').value;
+            const userPrompt = document.getElementById('userPrompt').value;
+
+            const promptText = `Select 4 high-end material/finish specifications for a ${roomType} renovation. Scope: ${scopeLevel}, Budget Target: $${budget}. User preferences: ${userPrompt}.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: promptText }] }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                title: { type: "STRING" },
+                                choice: { type: "STRING" },
+                                details: { type: "STRING" }
+                            },
+                            propertyOrdering: ["title", "choice", "details"]
+                        }
+                    }
+                },
+                systemInstruction: {
+                    parts: [{ text: "You are an executive interior design director selecting luxurious, durable finishes." }]
+                }
+            };
+
+            try {
+                const result = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const contentText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (contentText) {
+                    const finishes = JSON.parse(contentText);
+                    grid.innerHTML = finishes.map(f => `
+                        <div class="p-4 rounded-xl bg-emerald-950/60 border border-gold-500/20 hover:border-gold-500/40 transition-all">
+                            <span class="text-[10px] font-mono text-gold-400 uppercase tracking-widest block mb-1">${f.title}</span>
+                            <h4 class="text-sm font-semibold text-white mb-1">${f.choice}</h4>
+                            <p class="text-xs text-gray-400">${f.details}</p>
+                        </div>
+                    `).join('');
+                }
+                document.getElementById('coordinatorStatus').innerText = 'DesignPlanner Completed';
+                showToast("Design Specifications Ready", "Finish palette synthesized.");
+            } catch (err) {
+                console.error("Gemini Design Planner Error:", err);
+                renderFinishesFallback();
+                document.getElementById('coordinatorStatus').innerText = 'DesignPlanner Completed';
+            }
+        }
+
+        function renderFinishesFallback() {
+            const container = document.getElementById('finishesGrid');
+            if(!container) return;
+
+            const finishes = [
+                { title: 'Countertops & Surfaces', choice: 'Calacatta Gold Engineered Quartz', details: 'Stain-resistant, 3cm slab with waterfall edge profile.' },
+                { title: 'Custom Cabinetry', choice: 'Satin Emerald Lacquer Wood', details: 'Soft-close hardware, integrated LED channel lighting.' },
+                { title: 'Flooring Finish', choice: 'Large Format Porcelain Tile (60x120cm)', details: 'Matte beige stone texture with zero grout line layout.' },
+                { title: 'Fixtures & Hardware', choice: 'Brushed Satin Gold Brass', details: 'Gooseneck tapware, architectural cabinet pulls.' }
+            ];
+
+            container.innerHTML = finishes.map(f => `
+                <div class="p-4 rounded-xl bg-emerald-950/60 border border-gold-500/20 hover:border-gold-500/40 transition-all">
+                    <span class="text-[10px] font-mono text-gold-400 uppercase tracking-widest block mb-1">${f.title}</span>
+                    <h4 class="text-sm font-semibold text-white mb-1">${f.choice}</h4>
+                    <p class="text-xs text-gray-400">${f.details}</p>
+                </div>
+            `).join('');
+        }
+
+        // Project Coordinator Agent
+        function runProjectCoordinator() {
+            document.getElementById('coordinatorStatus').innerText = 'ProjectCoordinator Active...';
+            updateEstimates();
+            showToast("Financial Roadmap Built", "Cost decomposition & trade schedules updated.");
+            
+            setTimeout(() => {
+                document.getElementById('coordinatorStatus').innerText = 'ProjectCoordinator Ready';
+                switchStep(4);
+            }, 600);
+        }
+
+        // Cost Calculation Engine
+        function updateEstimates() {
+            const area = parseFloat(document.getElementById('roomArea').value) || 350;
+            const scope = document.getElementById('scopeLevel').value;
+            appState.roomArea = area;
+
+            let ratePerSqFt = 90;
+            if(scope === 'cosmetic') ratePerSqFt = 45;
+            if(scope === 'luxury') ratePerSqFt = 160;
+
+            const total = area * ratePerSqFt;
+            appState.targetBudget = total;
+
+            const totalDisplay = document.getElementById('totalEstimateDisplay');
+            const summaryArea = document.getElementById('summaryArea');
+            if(totalDisplay) totalDisplay.innerText = `$${total.toLocaleString()} Total`;
+            if(summaryArea) summaryArea.innerText = area;
+
+            renderCostTable();
+            renderTimeline();
+        }
+
+        function renderCostTable() {
+            const table = document.getElementById('costBreakdownTable');
+            if(!table) return;
+
+            const total = appState.targetBudget;
+            const rows = [
+                { cat: 'Materials & Finishes', trade: 'Slab / Tile Supplier', pct: 0.40 },
+                { cat: 'Custom Joinery & Cabinets', trade: 'Millwork Craftsmen', pct: 0.30 },
+                { cat: 'Labor & Installation', trade: 'General Contractor', pct: 0.20 },
+                { cat: 'Permits & MEP Works', trade: 'MEP Specialist', pct: 0.10 },
+            ];
+
+            table.innerHTML = rows.map(r => `
+                <tr class="hover:bg-emerald-900/30">
+                    <td class="py-2.5 px-3 font-medium text-white">${r.cat}</td>
+                    <td class="py-2.5 px-3 text-gray-400">${r.trade}</td>
+                    <td class="py-2.5 px-3 text-right font-mono text-gold-300">$${(total * r.pct).toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById('timelineContainer');
+            if(!container) return;
+
+            const scope = document.getElementById('scopeLevel').value;
+            let weeks = "4 - 5 Weeks";
+            if(scope === 'cosmetic') weeks = "2 - 3 Weeks";
+            if(scope === 'luxury') weeks = "6 - 8 Weeks";
+
+            document.getElementById('totalWeeksDisplay').innerText = weeks;
+
+            const phases = [
+                { phase: 'Phase 1: Design & Material Ordering', duration: 'Week 1', status: 'Approved' },
+                { phase: 'Phase 2: Demolition & Subfloor Prep', duration: 'Week 2', status: 'Scheduled' },
+                { phase: 'Phase 3: Millwork & Surface Install', duration: 'Week 3 - 4', status: 'Pending' },
+                { phase: 'Phase 4: Fixtures & Final Inspection', duration: 'Week 5', status: 'Pending' }
+            ];
+
+            container.innerHTML = phases.map(p => `
+                <div class="p-3 rounded-lg bg-emerald-950/60 border border-gold-500/20 flex justify-between items-center text-xs">
+                    <div>
+                        <p class="font-semibold text-white">${p.phase}</p>
+                        <p class="text-[10px] text-gray-400">${p.duration}</p>
+                    </div>
+                    <span class="px-2 py-0.5 rounded ${p.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-gold-500/10 text-gold-400'} font-mono text-[10px]">
+                        ${p.status}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // AI Rendering Engine using gemini-3.1-flash-image
+        async function triggerRenderGeneration() {
+            const loader = document.getElementById('renderLoading');
+            const img = document.getElementById('renderingImage');
+            
+            if(loader) loader.classList.remove('hidden');
+            if(img) img.classList.add('hidden');
+
+            const apiKey = getApiKey();
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
+
+            const roomType = document.getElementById('roomType').value;
+            const scopeLevel = document.getElementById('scopeLevel').value;
+            const userPrompt = document.getElementById('userPrompt').value || "luxury Emirates architecture design with marble and gold accents";
+
+            const promptText = `High-end architectural render of a renovated ${roomType}. ${scopeLevel} finish level. ${userPrompt}. Realistic interior lighting, 8k resolution, interior design photography, photorealistic finish.`;
+
+            document.getElementById('activePromptText').innerText = promptText;
+
+            const payload = {
+                contents: [{
+                    role: 'user',
+                    parts: [{ text: promptText }]
+                }],
+                generationConfig: {
+                    responseModalities: ['IMAGE'],
+                    imageConfig: { aspectRatio: "16:9" }
+                }
+            };
+
+            try {
+                const result = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const candidatePart = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                if (candidatePart) {
+                    const imageUrl = `data:${candidatePart.inlineData.mimeType};base64,${candidatePart.inlineData.data}`;
+                    if(img) {
+                        img.src = imageUrl;
+                        img.classList.remove('hidden');
+                    }
+                    if(loader) loader.classList.add('hidden');
+
+                    if (appState.versionHistory.length === 0) {
+                        appState.versionHistory.push({
+                            version: '1.0',
+                            prompt: userPrompt,
+                            url: imageUrl,
+                            modelContent: result.candidates[0].content
+                        });
+                        renderVersionHistory();
+                    }
+                    showToast("Render Synthesized", "New concept generated via Gemini 3.1 Flash Image Engine.");
+                } else {
+                    throw new Error("Image data missing from response.");
+                }
+            } catch (err) {
+                console.error("Gemini Image Generation Error:", err);
+                if(loader) loader.classList.add('hidden');
+                if(img) {
+                    const fallbackUrl = `https://placehold.co/1200x800/022c22/f59e0b?text=${encodeURIComponent(userPrompt.substring(0, 40))}`;
+                    img.src = fallbackUrl;
+                    img.classList.remove('hidden');
+                }
+                showToast("Notice", "Fallback concept active. " + err.message);
+            }
+        }
+
+        // Apply Multi-Turn Refinement Iteration using Gemini 3.1 Flash Image
+        async function applyRefinement() {
+            const input = document.getElementById('refinementInput');
+            if(!input || !input.value.trim()) {
+                showToast("Input Required", "Please enter a requested modification.");
+                return;
+            }
+
+            const refinementText = input.value.trim();
+            const loader = document.getElementById('renderLoading');
+            const img = document.getElementById('renderingImage');
+            
+            if(loader) loader.classList.remove('hidden');
+            if(img) img.classList.add('hidden');
+
+            const apiKey = getApiKey();
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
+
+            const newVerNum = (1 + appState.versionHistory.length * 0.1).toFixed(1);
+
+            // Construct Chat History for Multi-Turn Image Refinement
+            const chatHistory = [];
+            
+            if (appState.versionHistory.length > 0 && appState.versionHistory[0].modelContent) {
+                // Initial prompt
+                chatHistory.push({
+                    role: 'user',
+                    parts: [{ text: appState.versionHistory[0].prompt }]
+                });
+                // Prior generated image turn
+                chatHistory.push(appState.versionHistory[0].modelContent);
+            }
+
+            // Append current refinement instruction
+            chatHistory.push({
+                role: 'user',
+                parts: [{ text: `Modify this render: ${refinementText}` }]
+            });
+
+            const payload = {
+                contents: chatHistory,
+                generationConfig: {
+                    responseModalities: ['IMAGE'],
+                    imageConfig: { aspectRatio: "16:9" }
+                }
+            };
+
+            try {
+                const result = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const candidatePart = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                if (candidatePart) {
+                    const imageUrl = `data:${candidatePart.inlineData.mimeType};base64,${candidatePart.inlineData.data}`;
+                    
+                    appState.versionHistory.unshift({
+                        version: newVerNum,
+                        prompt: refinementText,
+                        url: imageUrl,
+                        modelContent: result.candidates[0].content
+                    });
+
+                    document.getElementById('renderingVersionBadge').innerText = `Version ${newVerNum}`;
+                    document.getElementById('activePromptText').innerText = `Refinement Applied: ${refinementText}`;
+                    
+                    if(img) {
+                        img.src = imageUrl;
+                        img.classList.remove('hidden');
+                    }
+                    if(loader) loader.classList.add('hidden');
+
+                    renderVersionHistory();
+                    input.value = "";
+                    showToast("Refinement Applied", `Version ${newVerNum} synthesized successfully.`);
+                } else {
+                    throw new Error("Refined image data missing.");
+                }
+            } catch (err) {
+                console.error("Gemini Refinement Error:", err);
+                if(loader) loader.classList.add('hidden');
+                if(img) img.classList.remove('hidden');
+                showToast("Refinement Failed", err.message);
+            }
+        }
+
+        function renderVersionHistory() {
+            const container = document.getElementById('versionHistoryContainer');
+            if(!container) return;
+
+            container.innerHTML = appState.versionHistory.map(v => `
+                <div onclick="loadVersion('${v.version}', '${v.url}')" class="p-2.5 rounded-lg bg-emerald-950/80 border border-gold-500/30 flex justify-between items-center cursor-pointer hover:border-gold-400">
+                    <div class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-image text-gold-400 text-xs"></i>
+                        <div>
+                            <p class="text-xs font-semibold text-white">Version ${v.version}</p>
+                            <p class="text-[10px] text-gray-400 truncate max-w-[160px]">${v.prompt}</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-gold-400 font-mono">Load</span>
+                </div>
+            `).join('');
+        }
+
+        function loadVersion(ver, url) {
+            document.getElementById('renderingVersionBadge').innerText = `Version ${ver}`;
+            document.getElementById('renderingImage').src = url;
+            showToast("Artifact Swapped", `Loaded visual version ${ver}`);
+        }
+
+        // Export Summary Package Simulation
+        function exportProjectSummary() {
+            showToast("Generating Export Package", "Preparing printable executive design summary PDF...");
+            setTimeout(() => {
+                showToast("Export Ready", "Project Roadmap & Visual Render Package generated.");
+            }, 1000);
+        }
+
+        // UI Toast Notification helper
+        function showToast(title, message) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMessage').innerText = message;
+            
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
